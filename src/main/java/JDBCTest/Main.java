@@ -1,23 +1,22 @@
 package JDBCTest;
 
 import java.sql.*;
-import java.util.Random;
 import java.util.Scanner;
 
 public class Main {
     private static final String DB_CONNECTION = "jdbc:mysql://localhost:3306/mydb?useSSL=false&serverTimezone=UTC";
     private static final String DB_USER = "root";
     private static final String DB_PASSWORD = "root";
-    private static String driver = "com.mysql.cj.jdbc.Driver";
 
     private static Connection conn;
 
     public static void main(String[] args) {
         try {
             try (Scanner sc = new Scanner(System.in)) {
-                Class.forName(driver).newInstance();
+                String driver = "com.mysql.cj.jdbc.Driver";
+                Class.forName(driver);
                 conn = DriverManager.getConnection(DB_CONNECTION, DB_USER, DB_PASSWORD);
-                initDB();
+//                initDB();
 
                 while (true) {
                     System.out.println("1: add client");
@@ -33,7 +32,7 @@ public class Main {
                             addClient(sc);
                             break;
                         case "2":
-                            insertRandomClients(sc);
+//                            insertRandomClients(sc);
                             break;
                         case "3":
                             deleteClient(sc);
@@ -48,7 +47,7 @@ public class Main {
                             return;
                     }
                 }
-            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+            } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             } finally {
                 if (conn != null) conn.close();
@@ -58,12 +57,12 @@ public class Main {
         }
     }
 
-    private static void initDB() throws SQLException {
-        try (Statement st = conn.createStatement()) {
-            st.execute("DROP TABLE IF EXISTS Clients");
-            st.execute("CREATE TABLE Clients (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, name VARCHAR(20) NOT NULL, age INT)");
-        }
-    }
+//    private static void initDB() throws SQLException {
+//        try (Statement st = conn.createStatement()) {
+//            st.execute("DROP TABLE IF EXISTS Clients");
+//            st.execute("CREATE TABLE Clients (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, name VARCHAR(20) NOT NULL, age INT)");
+//        }
+//    }
 
     private static void addClient(Scanner sc) throws SQLException {
         System.out.print("Enter client name: ");
@@ -103,30 +102,30 @@ public class Main {
         }
     }
 
-    private static void insertRandomClients(Scanner sc) throws SQLException {
-        System.out.print("Enter clients count: ");
-        String sCount = sc.nextLine();
-        int count = Integer.parseInt(sCount);
-        Random rnd = new Random();
-
-        conn.setAutoCommit(false); // enable transactions
-        try {
-            try {
-                try (PreparedStatement ps = conn.prepareStatement("INSERT INTO Clients (name, age) VALUES(?, ?)")) {
-                    for (int i = 0; i < count; i++) {
-                        ps.setString(1, "Name" + i);
-                        ps.setInt(2, rnd.nextInt(100));
-                        ps.executeUpdate();
-                    }
-                    conn.commit();
-                }
-            } catch (Exception ex) {
-                conn.rollback();
-            }
-        } finally {
-            conn.setAutoCommit(true); // return to default mode
-        }
-    }
+//    private static void insertRandomClients(Scanner sc) throws SQLException {
+//        System.out.print("Enter clients count: ");
+//        String sCount = sc.nextLine();
+//        int count = Integer.parseInt(sCount);
+//        Random rnd = new Random();
+//
+//        conn.setAutoCommit(false); // enable transactions
+//        try {
+//            try {
+//                try (PreparedStatement ps = conn.prepareStatement("INSERT INTO Clients (name, age) VALUES(?, ?)")) {
+//                    for (int i = 0; i < count; i++) {
+//                        ps.setString(1, "Name" + i);
+//                        ps.setInt(2, rnd.nextInt(100));
+//                        ps.executeUpdate();
+//                    }
+//                    conn.commit();
+//                }
+//            } catch (Exception ex) {
+//                conn.rollback();
+//            }
+//        } finally {
+//            conn.setAutoCommit(true); // return to default mode
+//        }
+//    }
 
     private static void viewClients() throws SQLException {
         try (PreparedStatement ps = conn.prepareStatement("SELECT * FROM Clients")) {
@@ -146,7 +145,6 @@ public class Main {
                     System.out.println();
                 }
             }
-            // rs can't be null according to the docs
         }
     }
 }
